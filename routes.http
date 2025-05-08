@@ -1,0 +1,20 @@
+# POST http://localhost:3000/api/students
+# Content-Type: application/json
+
+# {
+#   	"name": "joao",
+#     "address": "Rua A",
+#     "birthDate": "26/03/2004",
+#     "resgitration": "asdg123das",
+#     "phone": "7310928",
+#     "email": "enas@das.com",
+#     "course": "a1"
+# }
+
+POST http://localhost:3000/api/discipline
+Content-Type: application/json
+
+{
+  	"name": "Enzo",
+    "workload": "200 horas"
+}
