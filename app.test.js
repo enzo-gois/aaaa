@@ -1,17 +1,15 @@
-// app.test.js
 const request = require("supertest");
 const mongoose = require("mongoose");
-const app = require("./app"); // Certifique-se de exportar o app no app.js
-
-const { Student } = require("./models/Student");
-const { Discipline } = require("./models/Discipline");
+const app = require("./app");
 
 beforeAll(async () => {
-  // Usar uma base de teste (você pode configurar um banco isolado ou em memória como o MongoMemoryServer)
-  await mongoose.connect("mongodb+srv://root:jWLC50jqT99NXzQ8@cluster0.fxallcd.mongodb.net/test-db?retryWrites=true&w=majority&appName=Cluster0", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.createConnection(
+    "mongodb+srv://root:jWLC50jqT99NXzQ8@cluster0.fxallcd.mongodb.net/test-db?retryWrites=true&w=majority&appName=Cluster0",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
 });
 
 afterAll(async () => {
@@ -19,19 +17,21 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-describe("Testes de Integração da API", () => {
+describe("API Integration Tests", () => {
   let studentId;
 
-  test("Deve criar um novo aluno", async () => {
-    const response = await request(app).post("/api/students").send({
-      name: "João Silva",
-      address: "Rua A, 123",
-      birthDate: "1990-01-01",
-      registration: "2021001",
-      phone: "99999-0000",
-      email: "joao@email.com",
-      course: ["Sistemas", "Matemática"]
-    });
+  test("Should create a new student", async () => {
+    const response = await request(app)
+      .post("/api/students")
+      .send({
+        name: "João Silva",
+        address: "Rua A, 123",
+        birthDate: "1990-01-01",
+        registration: "2021001",
+        phone: "99999-0000",
+        email: "joao@email.com",
+        course: ["Sistemas", "Matemática"],
+      });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("response._id");
@@ -39,7 +39,7 @@ describe("Testes de Integração da API", () => {
     studentId = response.body.response._id;
   });
 
-  test("Deve retornar todos os alunos", async () => {
+  test("Should return all students", async () => {
     const response = await request(app).get("/api/students/all");
 
     expect(response.status).toBe(200);
@@ -47,13 +47,33 @@ describe("Testes de Integração da API", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
-  test("Deve criar uma nova disciplina", async () => {
+  test("Should create a new discipline", async () => {
     const response = await request(app).post("/api/discipline").send({
       name: "Estrutura de Dados",
-      workload: "60h"
+      workload: "60h",
     });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("response._id");
+  });
+
+  test("Should return a total of zero modified rows", async () => {
+    const response = await request(app)
+      .put("/api/discipline/edit/681cb55771074f9b3b4423a1")
+      .send({
+        name: "Algoritmos",
+        workload: "60h",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.matchedCount).toBe(0);
+  });
+
+  test("Should return all disciplines", async () => {
+    const response = await request(app).get("/api/discipline/all");
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
   });
 });

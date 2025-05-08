@@ -12,7 +12,6 @@ conn();
 const routes = require("./routes/router");
 app.use("/api",routes);
 
-
 const port = 3000;
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, function () {
